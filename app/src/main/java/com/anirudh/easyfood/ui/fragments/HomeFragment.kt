@@ -1,33 +1,42 @@
 package com.anirudh.easyfood.ui.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.anirudh.easyfood.R
+import android.widget.LinearLayout
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.anirudh.easyfood.adapters.MostPopularAdapter
+import com.anirudh.easyfood.databinding.FragmentHomeBinding
+import com.anirudh.easyfood.pojo.Meal
+import com.anirudh.easyfood.pojo.PopularMeal
+import com.anirudh.easyfood.ui.activities.MealActivity
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import com.anirudh.easyfood.viewModel.HomeViewModel
+import com.anirudh.easyfood.viewModel.ViewModelProviderFactory
+import com.bumptech.glide.Glide
 
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    companion object{
+        const val MEAL_ID = "meal_id"
+        const val MEAL_PIC = "mealImage"
+        const val MEAL_NAME = "mealName"
+    }
+
+    private lateinit var binding: FragmentHomeBinding
+    private lateinit var homeViewModel: HomeViewModel
+    private lateinit var popularMealAdapter: MostPopularAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+        var viewModelProviderFactory = ViewModelProviderFactory()
+        homeViewModel =
+            ViewModelProvider(this, viewModelProviderFactory)[HomeViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -35,26 +44,57 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupObservers()
+        onRandomMealClick()
+        setupAdapter()
+        homeViewModel.getRandomMeal()
+        homeViewModel.getPopularItems()
     }
+
+    private fun setupAdapter() {
+        popularMealAdapter = MostPopularAdapter {
+            val intent = Intent(activity, MealActivity::class.java)
+            intent.putExtra(MEAL_ID,it.idMeal)
+            intent.putExtra(MEAL_NAME,it.strMeal)
+            intent.putExtra(MEAL_PIC,it.strMealThumb)
+            startActivity(intent)
+        }
+        binding.rv.apply {
+            adapter = popularMealAdapter
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        }
+    }
+
+    private fun onRandomMealClick() {
+        binding.ivRandomMeal.setOnClickListener {
+            val intent = Intent(activity, MealActivity::class.java)
+            val meal = homeViewModel.randomMealLiveData.value
+            intent.putExtra(MEAL_ID,meal?.idMeal)
+            intent.putExtra(MEAL_NAME,meal?.strMeal)
+            intent.putExtra(MEAL_PIC,meal?.strMealThumb)
+            startActivity(intent)
+        }
+    }
+
+    private fun setupObservers() {
+        homeViewModel.observeRandomMealLiveData().observe(
+            viewLifecycleOwner
+        ) {
+            Glide.with(this).load(it.strMealThumb).into(binding.ivRandomMeal)
+        }
+        homeViewModel.observePopularMealsLiveData().observe(
+            viewLifecycleOwner
+        ) {
+            popularMealAdapter.setMeals(it as? ArrayList<PopularMeal> ?: arrayListOf())
+        }
+
+    }
+
 }
