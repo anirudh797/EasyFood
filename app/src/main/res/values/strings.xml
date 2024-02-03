@@ -6,4 +6,5 @@
     <string name="favorite">Favorite</string>
     <string name="category">Category</string>
     <string name="home">Home</string>
+    <string name="popular_items">Popular Items</string>
 </resources>

@@ -1,11 +1,11 @@
-package com.anirudh.easyfood
+package com.anirudh.easyfood.ui.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import com.anirudh.easyfood.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.btm_nav)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container) as NavHostFragment
-        val navController = Navigation.findNavController(this,R.id.nav_host_fragment_container)
+        val navController = Navigation.findNavController(this, R.id.nav_host_fragment_container)
 
         NavigationUI.setupWithNavController(bottomNav,navController)
     }
