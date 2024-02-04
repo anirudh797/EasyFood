@@ -74,9 +74,9 @@
                 <ImageView
                     android:id="@+id/iv_random_meal"
                     android:layout_width="match_parent"
-                    android:scaleType="fitXY"
                     android:layout_height="match_parent"
-                    android:background="@color/primary" />
+                    android:background="@color/primary"
+                    android:scaleType="fitXY" />
 
             </androidx.cardview.widget.CardView>
 
@@ -96,7 +96,6 @@
                 android:id="@+id/rv"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/_80sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
                 app:layout_constraintStart_toStartOf="@id/tv_popular"
                 app:layout_constraintTop_toBottomOf="@id/tv_popular" />
 
@@ -117,7 +116,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/_25sdp"
+                android:layout_marginHorizontal="@dimen/_15sdp"
                 app:cardCornerRadius="@dimen/_10sdp"
                 app:cardUseCompatPadding="true"
                 app:layout_constraintStart_toStartOf="parent"

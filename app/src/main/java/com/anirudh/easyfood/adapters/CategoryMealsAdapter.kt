@@ -4,12 +4,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.anirudh.easyfood.databinding.MealItemBinding
 import com.anirudh.easyfood.databinding.PopularItemBinding
 import com.anirudh.easyfood.pojo.MealsByCategory
 import com.bumptech.glide.Glide
 
-class MostPopularAdapter(var onItemClick: (MealsByCategory) -> Unit) :
-    RecyclerView.Adapter<MostPopularAdapter.PopularItemViewHolder>() {
+class CategoryMealsAdapter(var onItemClick: (MealsByCategory) -> Unit) :
+    RecyclerView.Adapter<CategoryMealsAdapter.MealCategoryItemViewHolder>() {
 
     private var mealsList = ArrayList<MealsByCategory>()
 
@@ -18,12 +19,12 @@ class MostPopularAdapter(var onItemClick: (MealsByCategory) -> Unit) :
         notifyDataSetChanged()
     }
 
-    class PopularItemViewHolder(val binding: PopularItemBinding) :
+    class MealCategoryItemViewHolder(val binding: MealItemBinding) :
         ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PopularItemViewHolder {
-        return PopularItemViewHolder(
-            PopularItemBinding.inflate(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MealCategoryItemViewHolder {
+        return MealCategoryItemViewHolder(
+            MealItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -36,12 +37,13 @@ class MostPopularAdapter(var onItemClick: (MealsByCategory) -> Unit) :
         return mealsList.size
     }
 
-    override fun onBindViewHolder(holder: PopularItemViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MealCategoryItemViewHolder, position: Int) {
         val meal = mealsList[position]
         Glide.with(holder.itemView).load(
             meal.strMealThumb
-        ).into(holder.binding.ivItem)
+        ).into(holder.binding.ivMeal)
 
+        holder.binding.tvMealName.text = meal.strMeal
         holder.itemView.setOnClickListener {
             onItemClick.invoke(meal)
         }

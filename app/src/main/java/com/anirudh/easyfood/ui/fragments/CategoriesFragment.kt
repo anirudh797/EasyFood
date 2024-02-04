@@ -1,32 +1,31 @@
 package com.anirudh.easyfood.ui.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import com.anirudh.easyfood.R
+import com.anirudh.easyfood.adapters.CategoriesAdapter
+import com.anirudh.easyfood.databinding.CategoryItemBinding
+import com.anirudh.easyfood.databinding.FragmentCategoriesBinding
+import com.anirudh.easyfood.databinding.FragmentFavoritesBinding
+import com.anirudh.easyfood.pojo.MealCategory
+import com.anirudh.easyfood.ui.activities.CategoryMealsActivity
+import com.anirudh.easyfood.ui.activities.MainActivity
+import com.anirudh.easyfood.viewModel.HomeViewModel
 
-/**
- * A simple [Fragment] subclass.
- * Use the [CategoriesFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 class CategoriesFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
+    private lateinit var binding: FragmentCategoriesBinding
+    private lateinit var categoryAdapter: CategoriesAdapter
+    private lateinit var viewModel: HomeViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+        viewModel = (activity as MainActivity).viewModel
     }
 
     override fun onCreateView(
@@ -34,26 +33,34 @@ class CategoriesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_categories, container, false)
+        binding = FragmentCategoriesBinding.inflate(inflater)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CategoriesFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CategoriesFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupRv()
+        setupObservers()
     }
+
+    private fun setupObservers() {
+        viewModel.observeCategoryListLiveData().observe(viewLifecycleOwner) {
+            categoryAdapter.setMealCategories(it as ArrayList<MealCategory>)
+        }
+    }
+
+    private fun setupRv() {
+        categoryAdapter = CategoriesAdapter {
+            val intent = Intent(activity, CategoryMealsActivity::class.java)
+            intent.putExtra(HomeFragment.CATEGORY_NAME, it.strCategory)
+            intent.putExtra(HomeFragment.MEAL_NAME, it.strCategory)
+            intent.putExtra(HomeFragment.MEAL_PIC, it.strCategoryDescription)
+            startActivity(intent)
+        }
+        binding.rvCategory.apply {
+            layoutManager = GridLayoutManager(context, 3, GridLayoutManager.VERTICAL, false)
+            adapter = categoryAdapter
+        }
+    }
+
 }

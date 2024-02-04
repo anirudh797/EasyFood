@@ -2,10 +2,13 @@ package com.anirudh.easyfood.ui.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.anirudh.easyfood.R
 import com.anirudh.easyfood.databinding.ActivityMealBinding
 import com.anirudh.easyfood.databinding.PopularItemBinding
+import com.anirudh.easyfood.db.MealDb
+import com.anirudh.easyfood.pojo.Meal
 import com.anirudh.easyfood.ui.fragments.HomeFragment
 import com.anirudh.easyfood.viewModel.HomeViewModel
 import com.anirudh.easyfood.viewModel.MealViewModel
@@ -19,11 +22,13 @@ class MealActivity : AppCompatActivity() {
     lateinit var mealThumb: String
     lateinit var binding: ActivityMealBinding
     private lateinit var mealVm: MealViewModel
+    private var meal: Meal? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMealBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        var viewModelProviderFactory = ViewModelProviderFactory()
+        val mealDb = MealDb.getInstance(this)
+        val viewModelProviderFactory = ViewModelProviderFactory(mealDb)
         mealVm = ViewModelProvider(this, viewModelProviderFactory)[MealViewModel::class.java]
         updateMealInfo()
         updateViews()
@@ -33,6 +38,7 @@ class MealActivity : AppCompatActivity() {
 
     private fun setupObservers() {
         mealVm.observeMealDetailLiveData().observe(this) {
+            meal = it
             binding.tvMealCategory.text = it.strCategory
             binding.tvArea.text = it.strArea
             binding.tvDesc.text = it.strInstructions
@@ -46,7 +52,18 @@ class MealActivity : AppCompatActivity() {
         binding.collapsingToolbar.title = mealName
         binding.collapsingToolbar.setCollapsedTitleTextColor(resources.getColor(R.color.white))
         binding.collapsingToolbar.setExpandedTitleColor(resources.getColor(R.color.white))
+        binding.btnAddFavorite.setOnClickListener {
+            meal?.let { it1 ->
+                mealVm.insertMeal(it1)
+                Toast.makeText(
+                    applicationContext,
+                    "Saved meal to Fav ${it1.strMeal}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
+
 
     private fun updateMealInfo() {
         mealId = intent.getStringExtra(HomeFragment.MEAL_ID) ?: ""
